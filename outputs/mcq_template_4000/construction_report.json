@@ -1,0 +1,90 @@
+{
+  "db_path": "/mnt/data_1/yds/多模态/data_house/multimodal_samples.db",
+  "total_requested": 4000,
+  "total_written": 4000,
+  "split_counts": {
+    "dev": 400,
+    "internal_test": 400,
+    "train": 3200
+  },
+  "query_type_counts": {
+    "organ_identification": 2000,
+    "knowledge_type_identification": 2000
+  },
+  "source_record_type_counts": {
+    "image_text_pair": 1222,
+    "text_only": 2778
+  },
+  "answer_text_counts_top30": [
+    [
+      "病变特征",
+      641
+    ],
+    [
+      "检查操作",
+      566
+    ],
+    [
+      "胆胰",
+      565
+    ],
+    [
+      "胃",
+      465
+    ],
+    [
+      "结直肠",
+      414
+    ],
+    [
+      "治疗操作",
+      371
+    ],
+    [
+      "食管",
+      289
+    ],
+    [
+      "诊断评估",
+      231
+    ],
+    [
+      "小肠",
+      160
+    ],
+    [
+      "解剖特征",
+      123
+    ],
+    [
+      "十二指肠",
+      107
+    ],
+    [
+      "基础概念",
+      68
+    ]
+  ],
+  "split_report": {
+    "pool_counts": {
+      "train": 19946,
+      "dev": 1386,
+      "internal_test": 2668
+    },
+    "selected_counts": {
+      "train": 3200,
+      "dev": 400,
+      "internal_test": 400
+    }
+  },
+  "basic_validation": {
+    "issues": {},
+    "doc_id_split_leakage": {}
+  },
+  "benchmark_used_for_training": false,
+  "notes": [
+    "Questions are template-generated; answers are derived from structured source metadata.",
+    "API verification is not run by this script.",
+    "EndoBench samples are not used for training data construction."
+  ]
+}

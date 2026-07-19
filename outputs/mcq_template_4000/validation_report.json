@@ -1,0 +1,16 @@
+{
+  "input_jsonl": "/mnt/data_1/yds/多模态/agentic/outputs/mcq_template_4000/agentic_mcq_4000.jsonl",
+  "total": 4000,
+  "issues": {},
+  "examples": {},
+  "split_counts": {
+    "dev": 400,
+    "internal_test": 400,
+    "train": 3200
+  },
+  "query_type_counts": {
+    "organ_identification": 2000,
+    "knowledge_type_identification": 2000
+  },
+  "valid": true
+}

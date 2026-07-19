@@ -1,0 +1,101 @@
+{
+  "db_path": "/mnt/data_1/yds/多模态/data_house/multimodal_samples.db",
+  "total_requested": 4000,
+  "total_written": 4000,
+  "split_counts": {
+    "dev": 400,
+    "internal_test": 400,
+    "train": 3200
+  },
+  "query_type_counts": {
+    "image_content_type_identification": 2000,
+    "image_organ_identification": 2000
+  },
+  "answer_text_counts_top30": [
+    [
+      "病变特征",
+      977
+    ],
+    [
+      "胃",
+      558
+    ],
+    [
+      "检查操作",
+      483
+    ],
+    [
+      "结直肠",
+      469
+    ],
+    [
+      "胆胰",
+      405
+    ],
+    [
+      "食管",
+      283
+    ],
+    [
+      "治疗操作",
+      241
+    ],
+    [
+      "解剖特征",
+      217
+    ],
+    [
+      "小肠",
+      164
+    ],
+    [
+      "十二指肠",
+      121
+    ],
+    [
+      "诊断评估",
+      68
+    ],
+    [
+      "基础概念",
+      14
+    ]
+  ],
+  "with_query_image": 4000,
+  "with_origin_pdf": 4000,
+  "with_page_idx": 4000,
+  "with_pdf_context_text": 3998,
+  "split_report": {
+    "pool_counts": {
+      "train": 19717,
+      "dev": 1530,
+      "internal_test": 2753
+    },
+    "selected_counts": {
+      "train": 3200,
+      "dev": 400,
+      "internal_test": 400
+    },
+    "selected_query_type_counts": {
+      "train": {
+        "image_content_type_identification": 1600,
+        "image_organ_identification": 1600
+      },
+      "dev": {
+        "image_content_type_identification": 200,
+        "image_organ_identification": 200
+      },
+      "internal_test": {
+        "image_organ_identification": 200,
+        "image_content_type_identification": 200
+      }
+    }
+  },
+  "doc_id_split_leakage": {},
+  "benchmark_used_for_training": false,
+  "notes": [
+    "Questions are image-query style and do not expose evidence text.",
+    "Evidence text and two-page PDF context are kept only under source for verification/RAG.",
+    "API verification is not run by this script."
+  ]
+}
