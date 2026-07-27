@@ -1,0 +1,26 @@
+{
+  "input": "/mnt/data_1/yds/多模态/agentic/outputs/qa_stage1_prepared/source_pool.jsonl",
+  "routed_source_pool": "/mnt/data_1/yds/多模态/agentic/outputs/qa_stage1_prepared/routed_source_pool.jsonl",
+  "routed_qa_candidates": "/mnt/data_1/yds/多模态/agentic/outputs/qa_stage1_prepared/routed_qa_candidates.jsonl",
+  "pilot_qa_candidates": "/mnt/data_1/yds/多模态/agentic/outputs/qa_stage1_prepared/pilot_qa_candidates.jsonl",
+  "source_count": 6000,
+  "candidate_count": 22671,
+  "no_route_count": 0,
+  "candidate_query_type_counts": {
+    "anatomical_site_recognition": 5482,
+    "lesion_or_finding_identification": 5683,
+    "procedure_or_operation_recognition": 5723,
+    "spatial_region_understanding": 5783
+  },
+  "pilot_query_type_counts": {
+    "anatomical_site_recognition": 20,
+    "lesion_or_finding_identification": 20,
+    "procedure_or_operation_recognition": 20,
+    "spatial_region_understanding": 20
+  },
+  "split_counts": {
+    "dev": 713,
+    "train": 4344,
+    "internal_test": 943
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "db": "/mnt/data_1/yds/多模态/data_house/multimodal_samples.db",
+  "output": "/mnt/data_1/yds/多模态/agentic/outputs/qa_stage1_prepared/source_pool.jsonl",
+  "source_pool_count": 6000,
+  "rows_seen": 66291,
+  "max_sources": 6000,
+  "reject_counts": {},
+  "split_counts": {
+    "dev": 713,
+    "train": 4344,
+    "internal_test": 943
+  },
+  "primary_knowledge_type_counts": {
+    "病变特征": 2830,
+    "检查操作": 1402,
+    "治疗操作": 716,
+    "解剖特征": 581,
+    "诊断评估": 241,
+    "其他": 202,
+    "基础概念": 28
+  },
+  "doc_id_count": 213,
+  "api_called": false
+}

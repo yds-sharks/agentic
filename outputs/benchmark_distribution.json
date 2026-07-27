@@ -1,0 +1,455 @@
+{
+  "benchmark_jsonl": "/mnt/data_10/mwx/workspace/multi_modal_rag/evaluate_benchmark/rag_retrieval_export/output/20260511_151007/retrieval_export.jsonl",
+  "num_samples": 6832,
+  "dataset_distribution": [
+    {
+      "key": [
+        "PSI-AVA"
+      ],
+      "count": 1143,
+      "ratio": 0.1673009367681499
+    },
+    {
+      "key": [
+        "EndoVis18"
+      ],
+      "count": 798,
+      "ratio": 0.1168032786885246
+    },
+    {
+      "key": [
+        "Kid"
+      ],
+      "count": 639,
+      "ratio": 0.0935304449648712
+    },
+    {
+      "key": [
+        "HyperKvasir"
+      ],
+      "count": 601,
+      "ratio": 0.08796838407494145
+    },
+    {
+      "key": [
+        "Gastrovision"
+      ],
+      "count": 489,
+      "ratio": 0.07157494145199063
+    },
+    {
+      "key": [
+        "Cholec80"
+      ],
+      "count": 437,
+      "ratio": 0.06396370023419204
+    },
+    {
+      "key": [
+        "WCE2025"
+      ],
+      "count": 426,
+      "ratio": 0.062353629976580796
+    },
+    {
+      "key": [
+        "EDD2020"
+      ],
+      "count": 397,
+      "ratio": 0.05810889929742389
+    },
+    {
+      "key": [
+        "SUN"
+      ],
+      "count": 346,
+      "ratio": 0.0506440281030445
+    },
+    {
+      "key": [
+        "LDPolypVideo"
+      ],
+      "count": 345,
+      "ratio": 0.05049765807962529
+    },
+    {
+      "key": [
+        "KvasirCapsule"
+      ],
+      "count": 234,
+      "ratio": 0.03425058548009368
+    },
+    {
+      "key": [
+        "Kvasir"
+      ],
+      "count": 230,
+      "ratio": 0.033665105386416865
+    },
+    {
+      "key": [
+        "WCEBleedGen"
+      ],
+      "count": 219,
+      "ratio": 0.03205503512880562
+    },
+    {
+      "key": [
+        "SEE-AI"
+      ],
+      "count": 160,
+      "ratio": 0.0234192037470726
+    },
+    {
+      "key": [
+        "CVC-ColonDB"
+      ],
+      "count": 125,
+      "ratio": 0.018296252927400468
+    },
+    {
+      "key": [
+        "ETIS-LaribPolypDB"
+      ],
+      "count": 63,
+      "ratio": 0.009221311475409836
+    },
+    {
+      "key": [
+        "Kvasir-Seg"
+      ],
+      "count": 60,
+      "ratio": 0.008782201405152224
+    },
+    {
+      "key": [
+        "PolypGen"
+      ],
+      "count": 50,
+      "ratio": 0.007318501170960188
+    },
+    {
+      "key": [
+        "EndoVis17"
+      ],
+      "count": 40,
+      "ratio": 0.00585480093676815
+    },
+    {
+      "key": [
+        "CVC-ClinicDB"
+      ],
+      "count": 20,
+      "ratio": 0.002927400468384075
+    },
+    {
+      "key": [
+        "CVC-300"
+      ],
+      "count": 10,
+      "ratio": 0.0014637002341920376
+    }
+  ],
+  "category_distribution": [
+    {
+      "key": [
+        "Spatial Localization and Region Understanding"
+      ],
+      "count": 2413,
+      "ratio": 0.35319086651053866
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis"
+      ],
+      "count": 1801,
+      "ratio": 0.2636124121779859
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading"
+      ],
+      "count": 1575,
+      "ratio": 0.2305327868852459
+    },
+    {
+      "key": [
+        "Anatomical Structure Recognition"
+      ],
+      "count": 1043,
+      "ratio": 0.1526639344262295
+    }
+  ],
+  "task_distribution": [
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Recognition"
+      ],
+      "count": 1311,
+      "ratio": 0.19189110070257612
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Type Identification"
+      ],
+      "count": 1058,
+      "ratio": 0.15485948477751757
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Macro Phases Identification"
+      ],
+      "count": 738,
+      "ratio": 0.10802107728337236
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Visual Grounding"
+      ],
+      "count": 669,
+      "ratio": 0.0979215456674473
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Micro Operation Analysis"
+      ],
+      "count": 666,
+      "ratio": 0.09748243559718969
+    },
+    {
+      "key": [
+        "Anatomical Structure Recognition",
+        "Landmark Identification"
+      ],
+      "count": 625,
+      "ratio": 0.09148126463700235
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Selection"
+      ],
+      "count": 433,
+      "ratio": 0.06337822014051522
+    },
+    {
+      "key": [
+        "Anatomical Structure Recognition",
+        "Organ Identification"
+      ],
+      "count": 418,
+      "ratio": 0.061182669789227165
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Quantification"
+      ],
+      "count": 323,
+      "ratio": 0.04727751756440281
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Instrument Management"
+      ],
+      "count": 297,
+      "ratio": 0.04347189695550351
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Severity Grading"
+      ],
+      "count": 194,
+      "ratio": 0.028395784543325527
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Preoperative Assessment"
+      ],
+      "count": 100,
+      "ratio": 0.014637002341920375
+    }
+  ],
+  "subtask_distribution": [
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Type Identification",
+        "Polyp Type Classification"
+      ],
+      "count": 808,
+      "ratio": 0.11826697892271663
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Visual Grounding",
+        "Visual Grounding"
+      ],
+      "count": 669,
+      "ratio": 0.0979215456674473
+    },
+    {
+      "key": [
+        "Anatomical Structure Recognition",
+        "Landmark Identification",
+        "Landmark Identification"
+      ],
+      "count": 625,
+      "ratio": 0.09148126463700235
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Recognition",
+        "Bounding Box Region Recognition"
+      ],
+      "count": 433,
+      "ratio": 0.06337822014051522
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Selection",
+        "Region Selection"
+      ],
+      "count": 433,
+      "ratio": 0.06337822014051522
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Recognition",
+        "Coordinate-based Region Recognition"
+      ],
+      "count": 433,
+      "ratio": 0.06337822014051522
+    },
+    {
+      "key": [
+        "Anatomical Structure Recognition",
+        "Organ Identification",
+        "Organ Identification"
+      ],
+      "count": 418,
+      "ratio": 0.061182669789227165
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Macro Phases Identification",
+        "Surgical Step Recognition"
+      ],
+      "count": 388,
+      "ratio": 0.056791569086651054
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Micro Operation Analysis",
+        "Surgical Action Recognition"
+      ],
+      "count": 361,
+      "ratio": 0.052839578454332556
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Macro Phases Identification",
+        "Surgical Phase Recognition"
+      ],
+      "count": 350,
+      "ratio": 0.05122950819672131
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Quantification",
+        "Lesion Quantification"
+      ],
+      "count": 323,
+      "ratio": 0.04727751756440281
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Micro Operation Analysis",
+        "Treatment Intervention Recognition"
+      ],
+      "count": 305,
+      "ratio": 0.044642857142857144
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Recognition",
+        "Multi-region Recognition"
+      ],
+      "count": 263,
+      "ratio": 0.03849531615925059
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Type Identification",
+        "Lesion Classification"
+      ],
+      "count": 250,
+      "ratio": 0.036592505854800936
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Instrument Management",
+        "Instrument Counting"
+      ],
+      "count": 199,
+      "ratio": 0.029127634660421547
+    },
+    {
+      "key": [
+        "Lesion Analysis and Grading",
+        "Lesion Severity Grading",
+        "Lesion Severity Grading"
+      ],
+      "count": 194,
+      "ratio": 0.028395784543325527
+    },
+    {
+      "key": [
+        "Spatial Localization and Region Understanding",
+        "Region Recognition",
+        "Contour-based Region Recognition"
+      ],
+      "count": 182,
+      "ratio": 0.02663934426229508
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Preoperative Assessment",
+        "Preoperative Assessment"
+      ],
+      "count": 100,
+      "ratio": 0.014637002341920375
+    },
+    {
+      "key": [
+        "Surgical Workflow and Operation Analysis",
+        "Instrument Management",
+        "Instrument Presence Verification"
+      ],
+      "count": 98,
+      "ratio": 0.014344262295081968
+    }
+  ],
+  "training_use_allowed": false
+}
