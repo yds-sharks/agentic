@@ -1,0 +1,12 @@
+torch>=2.4.0
+transformers>=4.57.0
+accelerate>=0.30.0
+datasets>=2.18.0
+huggingface_hub[cli]>=0.24.0
+pymilvus[milvus_lite]>=2.5.0
+pillow
+pyyaml
+tqdm
+requests
+numpy
+qwen-vl-utils
