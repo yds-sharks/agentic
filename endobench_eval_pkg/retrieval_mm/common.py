@@ -4,15 +4,19 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from typing import Any, Dict, Iterable, List
 
 
-DEFAULT_DB_PATH = "/mnt/data_1/yds/多模态/data_house/multimodal_samples.db"
-DEFAULT_BGE_MODEL_PATH = "/mnt/data_1/yds/RAG/Hybrid_milvus/总版/pretrained_models/BAAI/bge-m3"
-DEFAULT_QWEN3_VL_MODEL_PATH = (
-    "/mnt/data_10/mwx/huggingface_cache/hub/models--Qwen--Qwen3-VL-8B-Instruct/"
-    "snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+DEFAULT_DB_PATH = os.environ.get(
+    "SAMPLES_DB",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                 "assets", "multimodal_samples.db"),
+)
+DEFAULT_BGE_MODEL_PATH = os.environ.get("BGE_M3_PATH", "BAAI/bge-m3")
+DEFAULT_QWEN3_VL_MODEL_PATH = os.environ.get(
+    "QWEN3_VL_PATH", "Qwen/Qwen3-VL-8B-Instruct"
 )
 
 

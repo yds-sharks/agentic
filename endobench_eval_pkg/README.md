@@ -58,6 +58,7 @@ endobench_eval_pkg/
 ├── eval_endobench.py      # 主评测脚本
 ├── code/                  # controller/检索适配/打分器等模块
 ├── retrieval_mm/          # Milvus 多模态检索引擎
+│   └── build_multimodal_milvus.py  # （可选）从 assets/multimodal_samples.db 重建索引；评测无需运行，DB 已由 Release 直接提供
 ├── weight_module/         # v2 权重模块（checkpoints 由 Release 提供）
 ├── assets/                # Milvus DB / 候选缓存 / 翻译缓存（下载后生成）
 ├── models/                # u50 与公开模型（下载后生成）
