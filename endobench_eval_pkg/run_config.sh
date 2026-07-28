@@ -7,6 +7,7 @@ cd "$(dirname "$0")"; PKGROOT=$PWD
 source .venv/bin/activate
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export WEIGHT_MODULE_DIR=$PKGROOT/weight_module
+export AGENTIC_ROOT=$PKGROOT
 export HF_ENDPOINT=${HF_ENDPOINT:-https://hf-mirror.com}
 CKPT=${CTRL_CKPT:-$PKGROOT/models/ckpt_grpo_v4_u50}
 QID=stratified_1000.jsonl; OUT=results/${CFG}${OUT_SUFFIX}

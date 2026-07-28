@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from bisect import bisect_right
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -190,13 +191,13 @@ class SemanticDensityService:
 
     def __init__(
         self,
-        root_dir: str | Path = "/mnt/data_1/yds/多模态/权重模块",
+        root_dir: str | Path = None,
         device: str = "auto",
         rank_reference_path: Optional[str | Path] = None,
     ):
         torch, nn, auto_model, auto_tokenizer = require_runtime_deps()
         self.torch = torch
-        self.root_dir = Path(root_dir)
+        self.root_dir = Path(root_dir) if root_dir else Path(os.environ.get("WEIGHT_MODULE_DIR", "."))
         self.device = self._resolve_device(device)
 
         density_root = self.root_dir / "checkpoints/density_cls_v10_mengzi"

@@ -24,7 +24,11 @@ echo "== [4/5] 路径写入配置 =="
 sed -i "s|PKGROOT|$PKGROOT|g" code/agentic_runtime_config.json weight_module/weight_module_runtime.yaml
 sed -i "s|/mnt/data_1/yds/微调/models/mengzi-bert-base|$PKGROOT/models/mengzi-bert-base|g" \
   weight_module/checkpoints/*/config.resolved.yaml
+# 同时修正 config.resolved.yaml 中的 checkpoint 目录和数据路径
+sed -i "s|/mnt/data_1/yds/多模态/权重模块|$PKGROOT/weight_module|g" \
+  weight_module/checkpoints/*/config.resolved.yaml
 
+export AGENTIC_ROOT=$PKGROOT
 echo "== [5/5] 10题冒烟 (GPU0) =="
 bash run_config.sh SMOKE 0
 echo "SETUP COMPLETE — 运行: bash run_overnight.sh"
