@@ -1,0 +1,132 @@
+{
+  "mode": "agentic",
+  "overall": {
+    "n": 1002,
+    "acc": 0.41417165668662675,
+    "mean_logp_gold": -4.536229334124099,
+    "mean_latency_s": 12.478952333598794
+  },
+  "by_scene": {
+    "Capsule Endoscopy": {
+      "n": 246,
+      "acc": 0.32926829268292684,
+      "mean_logp_gold": -6.214838840762481
+    },
+    "Colonoscopy": {
+      "n": 271,
+      "acc": 0.4575645756457565,
+      "mean_logp_gold": -4.912471927421191
+    },
+    "Gastroscopy": {
+      "n": 85,
+      "acc": 0.5058823529411764,
+      "mean_logp_gold": -3.7990210754341134
+    },
+    "Surgical Endoscopy": {
+      "n": 400,
+      "acc": 0.4175,
+      "mean_logp_gold": -3.405636885554331
+    }
+  },
+  "by_task": {
+    "Instrument Management": {
+      "n": 31,
+      "acc": 0.6774193548387096,
+      "mean_logp_gold": -2.472172840021101
+    },
+    "Landmark Identification": {
+      "n": 86,
+      "acc": 0.4883720930232558,
+      "mean_logp_gold": -5.326960980570094
+    },
+    "Lesion Quantification": {
+      "n": 52,
+      "acc": 0.17307692307692307,
+      "mean_logp_gold": -12.193917996782638
+    },
+    "Lesion Severity Grading": {
+      "n": 30,
+      "acc": 0.2,
+      "mean_logp_gold": -5.837929738064607
+    },
+    "Lesion Type Identification": {
+      "n": 149,
+      "acc": 0.3959731543624161,
+      "mean_logp_gold": -4.456840618277788
+    },
+    "Macro Phases Identification": {
+      "n": 120,
+      "acc": 0.325,
+      "mean_logp_gold": -4.804442723607811
+    },
+    "Micro Operation Analysis": {
+      "n": 98,
+      "acc": 0.42857142857142855,
+      "mean_logp_gold": -3.087333155431651
+    },
+    "Organ Identification": {
+      "n": 66,
+      "acc": 0.3181818181818182,
+      "mean_logp_gold": -9.678733631507374
+    },
+    "Preoperative Assessment": {
+      "n": 15,
+      "acc": 0.7333333333333333,
+      "mean_logp_gold": -0.8221667753755658
+    },
+    "Region Recognition": {
+      "n": 181,
+      "acc": 0.3701657458563536,
+      "mean_logp_gold": -3.817327256013101
+    },
+    "Region Selection": {
+      "n": 65,
+      "acc": 0.6153846153846154,
+      "mean_logp_gold": -1.7886847408033217
+    },
+    "Visual Grounding": {
+      "n": 109,
+      "acc": 0.5321100917431193,
+      "mean_logp_gold": -1.833334600538448
+    }
+  },
+  "by_category": {
+    "Anatomical Structure Recognition": {
+      "n": 152,
+      "acc": 0.4144736842105263,
+      "mean_logp_gold": -7.21654647374023
+    },
+    "Lesion Analysis and Grading": {
+      "n": 231,
+      "acc": 0.3203463203463203,
+      "mean_logp_gold": -6.377882597826952
+    },
+    "Spatial Localization and Region Understanding": {
+      "n": 355,
+      "acc": 0.4647887323943662,
+      "mean_logp_gold": -2.8367160928148674
+    },
+    "Surgical Workflow and Operation Analysis": {
+      "n": 264,
+      "acc": 0.42803030303030304,
+      "mean_logp_gold": -3.6669001353656316
+    }
+  },
+  "behavior": {
+    "rewrite_rate": 0.41916167664670656,
+    "accept_acc": 0.4381443298969072,
+    "rewrite_acc": 0.38095238095238093,
+    "mean_keep_accept": 4.639175257731959,
+    "parse_fail_rate": 0.027944111776447105
+  },
+  "multiround": {
+    "multi_round_rate": 0.5798403193612774,
+    "mean_rounds": 2.0558882235528944,
+    "mean_retained": 1.7395209580838322,
+    "mean_breadcrumb": 0.0,
+    "mean_latency_retrieve_s": 0.018234831152610407,
+    "mean_latency_controller_s": 5.877722634505299,
+    "parse_fail_fallback_rate": 0.027944111776447105
+  },
+  "n_samples_file": 1002
+}
