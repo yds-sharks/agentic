@@ -253,7 +253,7 @@ class EndoBenchEvaluator:
         else:
             # agentic / gpt4o : multi-round loop with M+ (retained) and M- (failed queries)
             from trajectory_runtime import (build_round_candidates, normalize_candidate,
-                                            candidate_id)
+                                            candidate_id, search_history_item_multi)
             retained: List[Dict[str, Any]] = []   # M+
             failed_queries: List[str] = []         # M-
             suppressed: set = set()
@@ -274,6 +274,19 @@ class EndoBenchEvaluator:
                 pool = sorted(pool, key=lambda c: float(c.get("score", 0.0) or 0.0),
                               reverse=True)
                 return [hit_to_ev(c) for c in pool[: a.fixed_topk]]
+
+            def _final_evidence() -> List[Dict[str, Any]]:
+                """Budget/ParseFail fallback: M+ (if enabled) + current top-5, never closed-book."""
+                ev_mplus = _mplus_evidence()
+                ev_top5 = _fixed_topk_evidence()
+                seen = set()
+                out = []
+                for e in ev_mplus + ev_top5:
+                    key = e.get("doc_id") or e.get("id") or str(e)
+                    if key not in seen:
+                        seen.add(key)
+                        out.append(e)
+                return out[:5]
 
             def _log_round() -> None:
                 rounds_data.append({
@@ -308,9 +321,23 @@ class EndoBenchEvaluator:
                     hits = self.retriever.search_text(rw_query, k=a.rewrite_topk, level1=level1)
                     new_cands = [normalize_candidate(h) for h in hits[:a.rewrite_topk]
                                  if candidate_id(normalize_candidate(h)) not in suppressed]
-                    cand_list, n_retained, n_bc = build_round_candidates(
-                        retained, failed_queries, new_cands,
-                        no_mplus=a.no_mplus, no_mminus=a.no_mminus)
+                    if a.mplus_det_topk > 0:
+                        # method-2 (rescue-aligned): M+ keeps ORIGINAL origin labels
+                        # (the controller never saw "retained" during training)
+                        cand_list = []
+                        n_retained = 0
+                        if retained and not a.no_mplus:
+                            cand_list += [dict(it) for it in retained]
+                            n_retained = len(cand_list)
+                        n_bc = 0
+                        if failed_queries and not a.no_mminus:
+                            cand_list += [search_history_item_multi(failed_queries)]
+                            n_bc = 1
+                        cand_list += new_cands
+                    else:
+                        cand_list, n_retained, n_bc = build_round_candidates(
+                            retained, failed_queries, new_cands,
+                            no_mplus=a.no_mplus, no_mminus=a.no_mminus)
                 _t_step1 = time.time()
 
                 if a.mode == "agentic":
@@ -329,8 +356,8 @@ class EndoBenchEvaluator:
                         evidence = [hit_to_ev(cand_list[i]) for i in action_info.get("keep", [])
                                     if i < len(cand_list)]
                     else:
-                        # ParseFail -> ACCEPT with current M+ (empty at round 0) -> closed-book
-                        evidence = []
+                        # ParseFail -> top-5 (never closed-book)
+                        evidence = _fixed_topk_evidence()
                     _log_round()
                     break
 
@@ -353,9 +380,9 @@ class EndoBenchEvaluator:
                 _log_round()
                 _suppress_seen()
 
-                # ParseFail: ACCEPT with current M+ (empty M+ -> closed-book)
+                # ParseFail: ACCEPT with M+ + top-5 (never closed-book)
                 if not action_info.get("parsed", True):
-                    evidence = _mplus_evidence()
+                    evidence = _final_evidence()
                     break
 
                 # ---- D. Rewrite/Search-only: no learned KEEP, fixed Top-k evidence ----
@@ -369,25 +396,47 @@ class EndoBenchEvaluator:
 
                 if action_info["action"] == "ACCEPT":
                     bc_start, bc_end = n_retained, n_retained + n_bc
-                    evidence = [hit_to_ev(cand_list[i]) for i in action_info.get("keep", [])
-                                if i < len(cand_list) and not (bc_start <= i < bc_end)]
+                    kept = [i for i in action_info.get("keep", [])
+                            if i < len(cand_list) and not (bc_start <= i < bc_end)]
+                    if kept:
+                        evidence = [hit_to_ev(cand_list[i]) for i in kept]
+                    else:
+                        evidence = _fixed_topk_evidence()  # empty KEEP -> top-5
                     break
                 elif is_last:
-                    # budget reached: ACCEPT with current M+ (empty M+ -> closed-book)
-                    if round_idx == 0:
-                        # single-round legacy: evidence = rewrite retrieval results
-                        evidence = self.rewrite_retrieve(
-                            action_info.get("rewrite_query", ""), level1=level1)
-                    else:
-                        evidence = _mplus_evidence()
+                    # budget reached: ACCEPT with M+ + top-5 (never closed-book)
+                    evidence = _final_evidence()
                     break
                 else:
                     # REWRITE, not last: prepare next round (M+/M- update)
                     failed_queries.append(current_retrieve_query)
+                    if len(failed_queries) > 2:
+                        failed_queries = failed_queries[-2:]  # M- cap at 2
                     bc_start, bc_end = n_retained, n_retained + n_bc
-                    kept = action_info.get("keep", [])
-                    retained = [cand_list[i] for i in kept
+                    kept_ids = [i for i in action_info.get("keep", [])
                                 if i < len(cand_list) and not (bc_start <= i < bc_end)]
+                    new_kept = [cand_list[i] for i in kept_ids]
+                    if a.mplus_det_topk > 0:
+                        # method-2 (rescue-aligned) M+, matches the 42.84% protocol:
+                        #   round-0 REWRITE  -> force-inject first top-k candidates
+                        #                        (unconditional, overrides KEEP)
+                        #   later REWRITE    -> REPLACE with model keep when non-empty,
+                        #                        otherwise carry the previous M+
+                        if not a.no_mplus:
+                            if round_idx == 0:
+                                retained = list(cand_list[:a.mplus_det_topk])
+                            elif new_kept:
+                                retained = new_kept
+                    else:
+                        # M+ = dedup(M+_t ∪ K_t), cap at 5
+                        existing_ids = {candidate_id(c) for c in retained if candidate_id(c)}
+                        for c in new_kept:
+                            cid = candidate_id(c)
+                            if not cid or cid not in existing_ids:
+                                retained.append(c)
+                                if cid:
+                                    existing_ids.add(cid)
+                        retained = retained[:5]
                     current_retrieve_query = (action_info.get("rewrite_query", "")
                                              or current_retrieve_query)
 
@@ -527,6 +576,10 @@ def main() -> None:
                     help="ablation G: fixed sequential rewrite->retrieval->score-rerank")
     ap.add_argument("--fixed-topk", type=int, default=5,
                     help="fixed evidence Top-k for --rewrite-only / --sequential")
+    ap.add_argument("--mplus-det-topk", type=int, default=0,
+                    help="deterministic M+ initialization: when a REWRITE round "
+                         "produces an empty KEEP, inject the current top-k scored "
+                         "candidates into M+ (0=off, matches paper Config-4 det. M+)")
     ap.add_argument("--qid-file", default="",
                     help="JSONL file with qid field; if set, only evaluate those questions")
     ap.add_argument("--latency", action="store_true", default=False,
