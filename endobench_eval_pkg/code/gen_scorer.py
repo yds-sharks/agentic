@@ -30,6 +30,7 @@ CODE_DIR = Path(__file__).resolve().parent.parent / "code"
 if str(CODE_DIR) not in sys.path:
     sys.path.insert(0, str(CODE_DIR))
 
+from portable_data import resolve_image_path  # noqa: E402
 from rag_prompting import (  # noqa: E402
     RAG_INSTRUCTION, format_evidence, format_options, valid_options,
 )
@@ -38,6 +39,7 @@ from rag_prompting import (  # noqa: E402
 def _load_image(path: str, max_edge: int) -> Optional[Image.Image]:
     if not path:
         return None
+    path = resolve_image_path(path)
     try:
         img = Image.open(path).convert("RGB")
         if max(img.size) > max_edge:

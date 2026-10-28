@@ -46,6 +46,7 @@ if (HERE / "code").is_dir():
 from context_agent import SYSTEM_PROMPT_V11, USER_TEMPLATE, format_candidates  # noqa: E402
 from ctrl_data_common import build_messages, render_chat  # noqa: E402
 from grpo_reward import parse_action  # noqa: E402
+from portable_data import DEFAULT_BENCHMARK, load_local_benchmark  # noqa: E402
 
 DEFAULT_GEN_MODEL = "/mnt/data_10/mwx/huggingface_cache/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
 OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"]
@@ -86,6 +87,11 @@ def build_text_query(ex: Dict[str, Any], options: Dict[str, str]) -> str:
 
 def dump_query_image(ex: Dict[str, Any], img_dir: Path) -> str:
     """EndoBench stores the image as base64 in the `image` column; materialize to disk."""
+    if ex.get("query_image_path"):
+        local = Path(ex["query_image_path"])
+        if not local.is_file():
+            raise FileNotFoundError(f"缺少查询图片: {local}")
+        return str(local)
     idx = ex.get("index")
     out = img_dir / f"eb_{idx}.jpg"
     if out.exists() and out.stat().st_size > 0:
@@ -534,6 +540,8 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--mode", required=True, choices=["baseline", "vanilla_rag", "agentic", "gpt4o"])
     ap.add_argument("--benchmark", default="Saint-lsy/EndoBench")
+    ap.add_argument("--benchmark-file", default="",
+                    help="离线题库 JSONL；默认优先使用 assets/benchmark/endobench_test.jsonl")
     ap.add_argument("--split", default="test")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--offset", type=int, default=0)
@@ -597,8 +605,15 @@ def main() -> None:
     samples_path = out_dir / f"{args.mode}_samples.jsonl"
     summary_path = out_dir / f"{args.mode}_summary.json"
 
-    from datasets import load_dataset
-    ds = load_dataset(args.benchmark)[args.split]
+    local_benchmark = Path(args.benchmark_file) if args.benchmark_file else DEFAULT_BENCHMARK
+    if args.benchmark_file or (args.benchmark == "Saint-lsy/EndoBench" and local_benchmark.is_file()):
+        if args.split != "test":
+            ap.error("本地 EndoBench 题库仅包含 test split")
+        ds = load_local_benchmark(local_benchmark)
+        print(f"[data] 使用离线题库: {local_benchmark.resolve()}", flush=True)
+    else:
+        from datasets import load_dataset
+        ds = load_dataset(args.benchmark)[args.split]
     n_total = len(ds)
     start = max(args.offset, 0)
     stop = n_total if args.limit <= 0 else min(n_total, start + args.limit)
@@ -615,7 +630,10 @@ def main() -> None:
                         qid_set.add(r.get("qid", ""))
                     except Exception:
                         pass
-        indices = [i for i in indices if f"eb_{i}" in qid_set]
+        indices = [i for i in indices if f"eb_{ds[i]['index']}" in qid_set]
+        available = {f"eb_{row['index']}" for row in ds}
+        if qid_set - available:
+            ap.error(f"题库缺少 {len(qid_set - available)} 个指定 QID")
         print(f"[qid-file] filtered to {len(indices)} questions from {args.qid_file}", flush=True)
     print(f"[data] {args.benchmark}[{args.split}] n={n_total} -> eval [{start},{stop}) = {len(indices)}", flush=True)
 
@@ -632,6 +650,8 @@ def main() -> None:
                         cand_cache[d["qid"]] = d["candidates"]
                     except Exception:
                         pass
+    if args.mode != "baseline":
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
     cache_f = open(cache_path, "a", encoding="utf-8") if args.mode != "baseline" else None
 
     done = load_done_qids(samples_path)

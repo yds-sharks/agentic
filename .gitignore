@@ -9,3 +9,9 @@ build/
 *.log
 .vscode/
 .idea/
+endobench_eval_pkg/.venv/
+endobench_eval_pkg/assets/
+endobench_eval_pkg/models/
+endobench_eval_pkg/logs/
+endobench_eval_pkg/smoke/
+endobench_eval_pkg/weight_module/checkpoints/

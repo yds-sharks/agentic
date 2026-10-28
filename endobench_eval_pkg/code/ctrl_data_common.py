@@ -20,11 +20,13 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from PIL import Image
+from portable_data import resolve_image_path
 
 
 def load_image(path: str, max_edge: int) -> Optional[Image.Image]:
     if not path:
         return None
+    path = resolve_image_path(path)
     try:
         img = Image.open(path)
         img = img.convert("RGB")

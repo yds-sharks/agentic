@@ -1,7 +1,7 @@
 #!/bin/bash
 # EndoBench 消融评测包 — A100 服务器一键安装
 # 用法: bash setup_env.sh   （私有仓库需先 gh auth login）
-set -e
+set -euo pipefail
 cd "$(dirname "$0")"
 export PKGROOT=$PWD
 
@@ -29,6 +29,9 @@ sed -i "s|/mnt/data_1/yds/多模态/权重模块|$PKGROOT/weight_module|g" \
   weight_module/checkpoints/*/config.resolved.yaml
 
 export AGENTIC_ROOT=$PKGROOT
-echo "== [5/5] 10题冒烟 (GPU0) =="
-bash run_config.sh SMOKE 0
-echo "SETUP COMPLETE — 运行: bash run_overnight.sh"
+echo "== [5/5] CPU 数据完整性检查 =="
+python check_eval_data.py --runtime
+if [[ "${RUN_SMOKE:-0}" == 1 ]]; then
+  bash run_config.sh SMOKE "${SMOKE_GPU:-0}"
+fi
+echo "SETUP COMPLETE — 10题冒烟: bash run_config.sh SMOKE 0；正式评测: bash run_config.sh A 0"

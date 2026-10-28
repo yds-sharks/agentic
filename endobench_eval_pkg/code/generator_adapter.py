@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 
 import requests
 from PIL import Image
+from portable_data import resolve_image_path
 
 CODE_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = CODE_DIR / "agentic_runtime_config.json"
@@ -24,9 +25,7 @@ def load_config(path: str | Path = DEFAULT_CONFIG) -> Dict[str, Any]:
 def image_to_data_uri(path: str, max_edge: int = 1536, quality: int = 90, max_bytes: int = 8_000_000) -> str:
     if not path:
         return ""
-    file_path = Path(path)
-    if not file_path.exists() or not file_path.is_file():
-        return ""
+    file_path = Path(resolve_image_path(path))
     try:
         with Image.open(file_path) as img:
             rgb = img.convert("RGB")
