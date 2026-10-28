@@ -6,8 +6,8 @@ REL=eval-assets-v1
 REPO=yds-sharks/agentic
 DL="$PKGROOT/assets/dl"
 MODE=${1:-all}
-if [[ "$MODE" != all && "$MODE" != --benchmark-only ]]; then
-  echo "用法: bash download_assets.sh [--benchmark-only]" >&2
+if [[ "$MODE" != all && "$MODE" != --benchmark-only && "$MODE" != --zh-only ]]; then
+  echo "用法: bash download_assets.sh [--benchmark-only|--zh-only]" >&2
   exit 2
 fi
 mkdir -p "$DL" "$PKGROOT/models" "$PKGROOT/assets"
@@ -17,22 +17,44 @@ download() {
     gh release download "$REL" --repo "$REPO" --dir "$DL" --pattern "$1"
   fi
 }
+download_zh() {
+  download ENDOBENCH_ZH_SHA256SUMS.txt
+  while read -r hash name; do
+    [[ -n "$hash" ]] || continue
+    [[ "$name" == endobench_zh_v1.tar.gz ]] || { echo "中文校验清单路径非法" >&2; exit 1; }
+    download "$name"
+  done < "$DL/ENDOBENCH_ZH_SHA256SUMS.txt"
+  (cd "$DL" && sha256sum -c ENDOBENCH_ZH_SHA256SUMS.txt)
+  tar xzf "$DL/endobench_zh_v1.tar.gz" -C "$PKGROOT"
+}
+if [[ "$MODE" == --zh-only ]]; then
+  if [[ ! -s "$PKGROOT/assets/benchmark/endobench_test.jsonl" ]]; then
+    echo "请先运行 bash download_assets.sh --benchmark-only 获取基础题库及图片" >&2
+    exit 1
+  fi
+  download_zh
+  python3 "$PKGROOT/check_eval_data.py" --language both
+  echo "[dl] 中文题干、选项和答案就位；图片及模型未重复下载"
+  exit 0
+fi
 echo "[dl] 下载离线题库、查询图和证据图 $(date +%H:%M:%S)"
 download EVAL_DATA_SHA256SUMS.txt
 while read -r hash name; do
+  [[ -n "$hash" ]] || continue
   [[ "$name" != */* && "$name" != .* ]] || { echo "校验清单路径非法" >&2; exit 1; }
   download "$name"
 done < "$DL/EVAL_DATA_SHA256SUMS.txt"
 (cd "$DL" && sha256sum -c EVAL_DATA_SHA256SUMS.txt)
 tar xzf "$DL/endobench_data_v1.tar.gz" -C "$PKGROOT"
 cat "$DL"/evidence_images_v1.tar.gz.part* | tar xzf - -C "$PKGROOT"
+download_zh
 # 保留旧脚本使用的缓存位置；不覆盖已有评测缓存。
 for name in cand_cache_v2.jsonl endobench_translated_queries.jsonl; do
   if [[ ! -f "$PKGROOT/assets/$name" ]]; then
     cp "$PKGROOT/assets/benchmark/$name" "$PKGROOT/assets/$name"
   fi
 done
-python3 "$PKGROOT/check_eval_data.py"
+python3 "$PKGROOT/check_eval_data.py" --language both
 if [[ "$MODE" == --benchmark-only ]]; then
   echo "[dl] 评测数据就位；未下载模型或启动 GPU 评测"
   exit 0

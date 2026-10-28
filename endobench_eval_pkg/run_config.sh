@@ -16,7 +16,13 @@ export WEIGHT_MODULE_DIR=$PKGROOT/weight_module
 export AGENTIC_ROOT=$PKGROOT
 export HF_ENDPOINT=${HF_ENDPOINT:-https://hf-mirror.com}
 CKPT=${CTRL_CKPT:-$PKGROOT/models/ckpt_grpo_v4_u50}
-QID=${QID_FILE:-stratified_1000.jsonl}; OUT=results/${CFG}${OUT_SUFFIX:-}
+LANGUAGE=${BENCHMARK_LANG:-zh}
+case "$LANGUAGE" in
+  zh) BENCHMARK_FILE="$PKGROOT/assets/benchmark/endobench_test_zh.jsonl"; LANG_SUFFIX=_zh ;;
+  en) BENCHMARK_FILE="$PKGROOT/assets/benchmark/endobench_test.jsonl"; LANG_SUFFIX= ;;
+  *) echo "BENCHMARK_LANG 仅支持 zh 或 en" >&2; exit 2 ;;
+esac
+QID=${QID_FILE:-stratified_1000.jsonl}; OUT=results/${CFG}${LANG_SUFFIX}${OUT_SUFFIX:-}
 EXTRA=""
 case $CFG in
   A) EXTRA="--mplus-det-topk 3" ;;                      # Full memory (det. M+ & M-)
@@ -26,11 +32,11 @@ case $CFG in
   E) EXTRA="--no-mminus --mplus-det-topk 3" ;;          # M+ Only (deterministic)
   F) EXTRA="--no-mplus" ;;                              # M- Only
   G) EXTRA="--sequential" ;;                            # 固定 rewrite->retrieval->rerank（已废弃）
-  SMOKE) QID=smoke10.jsonl; OUT=smoke/A ;;
+  SMOKE) QID=smoke10.jsonl; OUT=smoke/A${LANG_SUFFIX}${OUT_SUFFIX:-} ;;
   *) echo "unknown CFG $CFG"; exit 1 ;;
 esac
 mkdir -p logs "$OUT"
-python check_eval_data.py --runtime
+python check_eval_data.py --runtime --language "$LANGUAGE"
 # 并行运行时避免 Milvus Lite 文件锁：第二个进程设 MILVUS_DB 指向 DB 副本
 #   cp assets/multimodal_vector_indexes.db assets/multimodal_vector_indexes_copy1.db
 #   MILVUS_DB=$PWD/assets/multimodal_vector_indexes_copy1.db bash run_config.sh E 1
@@ -39,7 +45,7 @@ if [ -n "${MILVUS_DB:-}" ]; then MILVUS_EXTRA="--milvus-db-path $MILVUS_DB"; fi
 QID_EXTRA=()
 if [[ "$QID" != ALL ]]; then QID_EXTRA=(--qid-file "$QID"); fi
 CUDA_VISIBLE_DEVICES=$GPU python eval_endobench.py --mode agentic \
-  --benchmark-file "$PKGROOT/assets/benchmark/endobench_test.jsonl" \
+  --benchmark-file "$BENCHMARK_FILE" \
   --ctrl-model "$CKPT" --gen-model "$PKGROOT/models/Qwen3-VL-8B-Instruct" \
   --ctrl-device cuda:0 --gen-device cuda:0 \
   --retr-image-device cuda:0 --retr-text-device cuda:0 --weight-device cuda:0 \
@@ -47,4 +53,4 @@ CUDA_VISIBLE_DEVICES=$GPU python eval_endobench.py --mode agentic \
   --translate-cache assets/benchmark/endobench_translated_queries.jsonl \
   --use-organ-filter --use-weight-module \
   --max-rounds 3 "${QID_EXTRA[@]}" --latency $EXTRA $MILVUS_EXTRA \
-  2>&1 | tee "logs/${CFG}${OUT_SUFFIX:-}_$(date +%m%d_%H%M).log"
+  2>&1 | tee "logs/${CFG}${LANG_SUFFIX}${OUT_SUFFIX:-}_$(date +%m%d_%H%M).log"

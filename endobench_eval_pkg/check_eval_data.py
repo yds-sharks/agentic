@@ -13,6 +13,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "code"))
 from portable_data import load_local_benchmark, read_jsonl
+from translate_benchmark_zh import validate as validate_zh
 
 
 def digest(path):
@@ -35,7 +36,7 @@ def collect_paths(obj):
             yield from collect_paths(value)
 
 
-def check(package, benchmark, runtime=False):
+def check(package, benchmark, runtime=False, language="both"):
     manifest = json.loads((benchmark / "manifest.json").read_text(encoding="utf-8"))
     for name, expected in manifest["files"].items():
         if digest(benchmark / name) != expected:
@@ -48,6 +49,22 @@ def check(package, benchmark, runtime=False):
     for row in rows:
         if not row.get("question") or not row.get(str(row.get("answer", ""))):
             raise ValueError(f"题目/答案选项缺失: {row['index']}")
+    zh_count = 0
+    if language in ("zh", "both"):
+        zh_manifest = json.loads((benchmark / "manifest_zh.json").read_text(encoding="utf-8"))
+        if zh_manifest.get("questions") != len(rows) or zh_manifest.get("language") != "zh-CN":
+            raise ValueError("中文题库清单数量/语言异常")
+        if zh_manifest.get("source_file_sha256") != digest(benchmark / "endobench_test.jsonl"):
+            raise ValueError("中文题库对应的英文源文件不同")
+        if zh_manifest.get("source_revision") != manifest["source_revision"]:
+            raise ValueError("中英文上游 revision 不一致")
+        if set(zh_manifest["files"]) != {"endobench_test_zh.jsonl"}:
+            raise ValueError("中文清单文件范围异常")
+        for name, expected in zh_manifest["files"].items():
+            if digest(benchmark / name) != expected:
+                raise ValueError(f"中文数据 SHA256 不一致: {name}")
+        zh_rows = load_local_benchmark(benchmark / "endobench_test_zh.jsonl")
+        zh_count = validate_zh(rows, zh_rows)
     cache = list(read_jsonl(benchmark / "cand_cache_v2.jsonl"))
     if {row["qid"] for row in cache} != qids:
         raise ValueError("候选缓存未覆盖完整 6832 题")
@@ -86,7 +103,7 @@ def check(package, benchmark, runtime=False):
             if not (package / relative).exists():
                 raise FileNotFoundError(f"缺少运行资产: {package / relative}")
     result = {
-        "questions": len(rows), "query_images": len(query_paths),
+        "questions": len(rows), "chinese_questions": zh_count, "query_images": len(query_paths),
         "candidate_cache_questions": len(cache), "translation_rows": len(translations),
         "corpus_images": len(corpus_paths), "subsets": subsets,
         "missing_images": 0, "benchmark_directory": str(benchmark),
@@ -100,10 +117,12 @@ def main():
     ap.add_argument("--package-root", type=Path, default=HERE)
     ap.add_argument("--benchmark-dir", type=Path)
     ap.add_argument("--runtime", action="store_true", help="额外检查模型与检索资产位置")
+    ap.add_argument("--language", choices=("en", "zh", "both"), default="both",
+                    help="默认核验中英文全量对齐；en 可仅检查旧英文基础包")
     args = ap.parse_args()
     package = args.package_root.resolve()
     benchmark = (args.benchmark_dir or package / "assets/benchmark").resolve()
-    check(package, benchmark, args.runtime)
+    check(package, benchmark, args.runtime, args.language)
 
 
 if __name__ == "__main__":

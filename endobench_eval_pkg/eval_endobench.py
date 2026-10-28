@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -541,7 +542,7 @@ def main() -> None:
     ap.add_argument("--mode", required=True, choices=["baseline", "vanilla_rag", "agentic", "gpt4o"])
     ap.add_argument("--benchmark", default="Saint-lsy/EndoBench")
     ap.add_argument("--benchmark-file", default="",
-                    help="离线题库 JSONL；默认优先使用 assets/benchmark/endobench_test.jsonl")
+                    help="离线题库 JSONL；中文选 endobench_test_zh.jsonl，英文选 endobench_test.jsonl")
     ap.add_argument("--split", default="test")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--offset", type=int, default=0)
@@ -606,7 +607,9 @@ def main() -> None:
     summary_path = out_dir / f"{args.mode}_summary.json"
 
     local_benchmark = Path(args.benchmark_file) if args.benchmark_file else DEFAULT_BENCHMARK
-    if args.benchmark_file or (args.benchmark == "Saint-lsy/EndoBench" and local_benchmark.is_file()):
+    using_local_benchmark = bool(args.benchmark_file) or (
+        args.benchmark == "Saint-lsy/EndoBench" and local_benchmark.is_file())
+    if using_local_benchmark:
         if args.split != "test":
             ap.error("本地 EndoBench 题库仅包含 test split")
         ds = load_local_benchmark(local_benchmark)
@@ -614,6 +617,18 @@ def main() -> None:
     else:
         from datasets import load_dataset
         ds = load_dataset(args.benchmark)[args.split]
+    language = ds[0].get("language", "en") if len(ds) else "en"
+    input_info = {"benchmark": args.benchmark, "split": args.split, "language": language,
+                  "benchmark_file_sha256": hashlib.sha256(local_benchmark.read_bytes()).hexdigest()
+                  if using_local_benchmark else None}
+    input_path = out_dir / f"{args.mode}_input.json"
+    if input_path.is_file():
+        if json.loads(input_path.read_text(encoding="utf-8")) != input_info:
+            ap.error("输出目录已有不同题库/语言的结果，请使用新的 --out-dir")
+    elif samples_path.is_file() and samples_path.stat().st_size and language != "en":
+        ap.error("已有结果未记录语言，禁止与中文评测混算；请使用新的 --out-dir")
+    input_path.write_text(json.dumps(input_info, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[data] 题库语言: {language}", flush=True)
     n_total = len(ds)
     start = max(args.offset, 0)
     stop = n_total if args.limit <= 0 else min(n_total, start + args.limit)
@@ -712,6 +727,7 @@ def main() -> None:
                        "probs": {}, "mode": args.mode, "action": "ERROR", "keep": [],
                        "rewrite_query": "", "parse_ok": False, "n_evidence": 0,
                        "evidence_docs": [], "error": f"{type(exc).__name__}: {exc}"}
+            rec["language"] = language
             out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             out_f.flush()
             n_new += 1
@@ -737,6 +753,8 @@ def main() -> None:
                     pass
     summary = summarize(all_records, args.mode)
     summary["n_samples_file"] = len(all_records)
+    summary["benchmark_language"] = language
+    summary["benchmark_file_sha256"] = input_info["benchmark_file_sha256"]
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     ov = summary["overall"]
     print(f"[done] mode={args.mode} acc={ov['acc']:.4f} ({ov['n']} samples) "
